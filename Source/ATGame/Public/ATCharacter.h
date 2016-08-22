@@ -11,6 +11,8 @@ class ATGAME_API AATCharacter : public ACharacter
 	GENERATED_UCLASS_BODY()
 
 public:
+	virtual void PossessedBy(AController* NewController) override;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
@@ -22,6 +24,9 @@ public:
 
 	virtual void MoveForward(float Value);
 	virtual void MoveRight(float Value);
+
+	virtual void SpecialSkill();
+	virtual void Attack(EAttackType EType, int AnimationState = 0);
 
 	void GetCameraLookatVector(FVector& Lookat, FRotator& CameraRotate);
 
@@ -60,9 +65,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
 	TArray<UAnimMontage*> AttackEndMontageList;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<TSubclassOf<class AATInventory>> CharacterInventory;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	AATInventory* InventoryList;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TArray< TSubclassOf<class AATInventory> > DefaultCharacterInventory;
+	EAttackType AttackType;
 };

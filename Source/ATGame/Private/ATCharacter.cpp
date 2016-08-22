@@ -48,6 +48,20 @@ AATCharacter::AATCharacter(const class FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AATCharacter::PossessedBy(AController* NewController)
+{
+	// TODO: shouldn't base class do this? APawn::Unpossessed() still does SetOwner(NULL)...
+	SetOwner(NewController);
+
+	Super::PossessedBy(NewController);
+
+	AATPlayerState* ATPS = Cast<AATPlayerState>(PlayerState);
+	if (ATPS)
+	{
+		ATPS->ApplyItem();
+	}
+}
+
 // Called when the game starts or when spawned
 void AATCharacter::BeginPlay()
 {
@@ -59,8 +73,7 @@ void AATCharacter::BeginPlay()
 // Called every frame
 void AATCharacter::Tick( float DeltaTime )
 {
-	Super::Tick( DeltaTime );
-
+	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -92,6 +105,26 @@ void AATCharacter::MoveRight(float Value)
 	}
 }
 
+void AATCharacter::Attack(EAttackType EType, int AnimationState)
+{
+	AttackType = EType;
+
+	if (EType == EAttackType::EAttack_Attack && !IsPlayingRootMotion())
+	{
+		PlayAnimMontage(AttackMontageList[AnimationState]);
+	}
+	else if (EType == EAttackType::EAttack_Consecutively)
+	{
+		PlayAnimMontage(AttackMontageList[AnimationState]);
+		AttackType = EAttackType::EAttack_Attack;
+	}
+}
+
+void AATCharacter::SpecialSkill()
+{
+
+}
+
 void AATCharacter::GetCameraLookatVector(FVector& Lookat, FRotator& CameraRotate)
 {
 	if (CameraCapsuleComponent == nullptr)
@@ -118,9 +151,7 @@ bool AATCharacter::AddInventory(AATInventory* InvToAdd, bool bAutoActivate)
 		{
 			InventoryList = InvToAdd;
 		}
-		/*else
-		{
-		}*/
+		InvToAdd->GivenTo(this, bAutoActivate);
 		return true;
 	}
 	return false;
@@ -158,13 +189,13 @@ void AATCharacter::RemoveInventory(AATInventory* InvToRemove)
 void AATCharacter::AddDefaultInventory(TArray<TSubclassOf<AATInventory>> DefaultInventoryToAdd)
 {
 	// 캐릭터가 가지고 있는 인벤토리
-	for (int32 i = 0; i<DefaultCharacterInventory.Num(); i++)
+	for (int32 i = 0; i< CharacterInventory.Num(); i++)
 	{
-		AddInventory(GetWorld()->SpawnActor<AATInventory>(DefaultCharacterInventory[i], FVector(0.0f), FRotator(0, 0, 0)), true);
+		AddInventory(GetWorld()->SpawnActor<AATInventory>(CharacterInventory[i], FVector(0.0f), FRotator(0, 0, 0)), true);
 	}
 
 	// 모드 전용 인벤토리
-	for (int32 i = 0; i<DefaultInventoryToAdd.Num(); i++)
+	for (int32 i = 0; i< DefaultInventoryToAdd.Num(); i++)
 	{
 		AddInventory(GetWorld()->SpawnActor<AATInventory>(DefaultInventoryToAdd[i], FVector(0.0f), FRotator(0, 0, 0)), true);
 	}

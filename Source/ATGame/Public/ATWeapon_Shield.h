@@ -12,9 +12,4 @@ UCLASS()
 class ATGAME_API AATWeapon_Shield : public AATWeapon
 {
 	GENERATED_UCLASS_BODY()
-
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	class UStaticMeshComponent* ShieldMeshComponent;
-	
 };

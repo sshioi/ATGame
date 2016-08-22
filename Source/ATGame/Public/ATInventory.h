@@ -17,7 +17,14 @@ public:
 		return ATOwner;
 	}
 
+	virtual void GivenTo(AATCharacter* NewOwner, bool bAutoActivate);
+
+protected:
+	UFUNCTION(Client, Reliable)
+	void ClientGivenTo(APawn* NewInstigator, bool bAutoActivate);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
 	AATCharacter* ATOwner;
+
 };

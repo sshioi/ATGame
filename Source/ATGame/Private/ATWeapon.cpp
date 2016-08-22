@@ -6,44 +6,50 @@
 AATWeapon::AATWeapon(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
-	WeaponMesh = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh"));
-	if (WeaponMesh != nullptr)
-	{
-		WeaponMesh->SetOnlyOwnerSee(false);
-		WeaponMesh->SetOwnerNoSee(false);
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
-		WeaponMesh->SetupAttachment(RootComponent);
-		WeaponMesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
-	}
-	
-	WeaponMeshComponent = ObjectInitializer.CreateOptionalDefaultSubobject<UStaticMeshComponent>(this, TEXT("WeaponMeshComp"));
+	WeaponMeshComponent = ObjectInitializer.CreateOptionalDefaultSubobject<UStaticMeshComponent>(this, TEXT("WeaponRMeshComp"));
 	if (WeaponMeshComponent != nullptr)
 	{
-		//WeaponMeshComponent->SetupAttachment(GetMesh(), TEXT("Weapon"));
+		WeaponMeshComponent->SetupAttachment(RootComponent);
 		WeaponMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		WeaponMeshComponent->SetCastShadow(false);
 	}
 
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
-
 	HandsAttachSocketName = TEXT("Weapon_R");
 }
 
-void AATWeapon::AttachToOwner_Implementation()
+void AATWeapon::GivenTo(AATCharacter* NewOwner, bool bAutoActivate)
+{
+	Super::GivenTo(NewOwner, bAutoActivate);
+	AttachToOwner();
+}
+
+void AATWeapon::AttachToOwner()
 {
 	if (ATOwner == NULL)
 	{
 		return;
 	}
 
-	if (WeaponMesh != NULL && WeaponMesh->SkeletalMesh != NULL)
+	if (WeaponMeshComponent != nullptr)
 	{
-		WeaponMesh->AttachToComponent(ATOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, HandsAttachSocketName);
+		WeaponMeshComponent->AttachToComponent(ATOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, HandsAttachSocketName);
 	}
-
 	Super::RegisterAllComponents();
-	//RegisterAllActorTickFunctions(true, true);
-
+	RegisterAllActorTickFunctions(true, true);
 	//ATOwner->weapon = this;
+}
+
+void AATWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+#if WITH_EDITOR
+	if (MeleeCollision != nullptr && bIsDrawWeaponCollision)
+	{
+		DrawDebugCapsule(GetWorld(), MeleeCollision->GetComponentLocation(), MeleeCollision->GetScaledCapsuleHalfHeight(), MeleeCollision->GetScaledCapsuleRadius(), MeleeCollision->GetComponentQuat(), FColor::Green);
+	}
+#endif	// WITH_EDITOR
 }

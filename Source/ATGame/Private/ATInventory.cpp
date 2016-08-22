@@ -12,3 +12,20 @@ AATInventory::AATInventory(const FObjectInitializer& ObjectInitializer)
 
 	PrimaryActorTick.bCanEverTick = true;
 }
+
+void AATInventory::GivenTo(AATCharacter* NewOwner, bool bAutoActivate)
+{
+	Instigator = NewOwner;
+	ATOwner = NewOwner;
+	SetOwner(NewOwner);
+	PrimaryActorTick.AddPrerequisite(Instigator, Instigator->PrimaryActorTick);
+	//ClientGivenTo(Instigator, bAutoActivate);
+}
+
+void AATInventory::ClientGivenTo_Implementation(APawn* NewInstigator, bool bAutoActivate)
+{
+	if (NewInstigator != nullptr)
+	{
+		Instigator = NewInstigator;
+	}
+}

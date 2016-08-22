@@ -6,5 +6,20 @@
 AATWeapon_Melee::AATWeapon_Melee(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
-}
+	MeleeCollision = ObjectInitializer.CreateOptionalDefaultSubobject<UCapsuleComponent>(this, TEXT("MeleeCollision"));
+	if (MeleeCollision != nullptr && WeaponMeshComponent != nullptr)
+	{
+		MeleeCollision->SetupAttachment(WeaponMeshComponent);
+		MeleeCollision->SetCastShadow(false);
 
+		SwingSocketName = FName(TEXT("Center"));
+		PSCSwing = ObjectInitializer.CreateDefaultSubobject<UParticleSystemComponent>(this, TEXT("PSCSwing"));
+		if (PSCSwing != nullptr)
+		{
+			PSCSwing->SetupAttachment(WeaponMeshComponent, SwingSocketName);
+			PSCSwing->SetCastShadow(false);
+		}
+	}
+
+	bIsDrawWeaponCollision = true;
+}

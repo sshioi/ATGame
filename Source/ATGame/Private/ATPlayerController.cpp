@@ -17,14 +17,16 @@ void AATPlayerController::ReceivedPlayer()
 {
 	Super::ReceivedPlayer();
 
-	for (int Index = 0; Index < DisplayWidgetList.Num(); ++Index)
+#if !UE_SERVER
+	for (auto WidgetAsset : DisplayWidgetList)
 	{
-		CurrentWidget = CreateWidget<UUserWidget>(this, DisplayWidgetList[Index]);
-		if (CurrentWidget != nullptr)
+		UATUserWidget* NewWidget = CreateWidget<UATUserWidget>(this, WidgetAsset);
+		if (NewWidget != nullptr)
 		{
-			CurrentWidget->AddToViewport(Index);
+			NewWidget->AttachToController(this);
 		}
 	}
+#endif
 }
 
 void AATPlayerController::SetPawn(APawn* InPawn)
@@ -85,6 +87,21 @@ void AATPlayerController::MoveRight(float Value)
 		UpdateInputRotate();
 	}
 }
+void AATPlayerController::Attack(EAttackType EType)
+{
+	if (ATCharacter != nullptr)
+	{
+		ATCharacter->Attack(EType);
+	}
+}
+
+void AATPlayerController::SpecialSkill()
+{
+	if (ATCharacter != nullptr)
+	{
+		ATCharacter->SpecialSkill();
+	}
+}
 
 void AATPlayerController::UpdateInputRotate()
 {
@@ -114,4 +131,9 @@ void AATPlayerController::ClientSetHUD_Implementation(TSubclassOf<class AHUD> Ne
 	{
 		MyATHUD = Cast<AATHUD>(MyHUD);
 	}
+}
+
+AATCharacter* AATPlayerController::GetATCharacter()
+{
+	return ATCharacter;
 }

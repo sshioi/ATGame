@@ -15,4 +15,8 @@ class ATGAME_API AATGameGameMode : public AGameMode
 
 public:
 	virtual void GenericPlayerInitialization(AController* C) override;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<TSubclassOf<class AATInventory>> GameModeInventory;
 };

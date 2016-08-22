@@ -14,21 +14,26 @@ class ATGAME_API AATWeapon : public AATInventory
 	GENERATED_UCLASS_BODY()
 
 public:
-	USkeletalMeshComponent* GetMesh() const { return WeaponMesh; }
+	virtual void GivenTo(AATCharacter* NewOwner, bool bAutoActivate) override;
 
-public:
-	/** attach the visuals to Owner's first person view */
-	UFUNCTION(BlueprintNativeEvent)
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
 	void AttachToOwner();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	class UStaticMeshComponent* WeaponMeshComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USkeletalMeshComponent* WeaponMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = " Component")
+	class UCapsuleComponent* MeleeCollision;
 
 	/** socket to attach weapon to hands; if None, then the hands are hidden */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName HandsAttachSocketName;
+
+#if WITH_EDITOR
+	UPROPERTY()
+	bool bIsDrawWeaponCollision;
+#endif	// WITH_EDITOR
 };

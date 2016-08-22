@@ -3,12 +3,19 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
-#include "Blueprint/UserWidget.h"
 #include "ATPlayerController.generated.h"
 
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+	EAttack_None,
+	EAttack_Attack,
+	EAttack_Consecutively,
+};
+
 UCLASS()
 class ATGAME_API AATPlayerController : public APlayerController
 {
@@ -30,8 +37,17 @@ public:
 	virtual void UpdateInputRotate();
 	virtual void UpdatePredictionRotator(FRotator& PredictionRotator);
 
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	virtual void Attack(EAttackType EType);
+
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	virtual void SpecialSkill();
+
 	UFUNCTION(BlueprintCallable, Category = "HUD", Reliable, Client)
 	void ClientSetHUD(TSubclassOf<class AHUD> NewHUDClass);
+
+	UFUNCTION(BlueprintCallable, Category = PlayerController)
+	virtual AATCharacter* GetATCharacter();
 
 private:
 	UPROPERTY()
@@ -49,8 +65,5 @@ public:
 
 	// 배열자리가 Depth값이다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UMG Widget")
-	TArray<TSubclassOf<class UUserWidget>> DisplayWidgetList;
-
-	UPROPERTY()
-	UUserWidget* CurrentWidget;
+	TArray<TSubclassOf<class UATUserWidget>> DisplayWidgetList;
 };
