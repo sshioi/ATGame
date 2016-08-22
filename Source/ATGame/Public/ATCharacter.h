@@ -62,9 +62,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
 	TArray<UAnimMontage*> AttackMontageList;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
-	TArray<UAnimMontage*> AttackEndMontageList;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TArray<TSubclassOf<class AATInventory>> CharacterInventory;
 
