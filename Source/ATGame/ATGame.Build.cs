@@ -6,7 +6,7 @@ public class ATGame : ModuleRules
 {
 	public ATGame(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "AIModule", "GameplayTasks" });
 
 		//PrivateDependencyModuleNames.AddRange(new string[] {  });
 

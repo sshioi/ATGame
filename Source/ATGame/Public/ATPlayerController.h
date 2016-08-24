@@ -41,7 +41,7 @@ public:
 	virtual void Attack(EAttackType EType);
 
 	UFUNCTION(BlueprintCallable, Category = "Event")
-	virtual void SpecialSkill();
+	virtual void Block(bool BlockState);
 
 	UFUNCTION(BlueprintCallable, Category = "HUD", Reliable, Client)
 	void ClientSetHUD(TSubclassOf<class AHUD> NewHUDClass);
@@ -51,7 +51,7 @@ public:
 
 private:
 	UPROPERTY()
-	AATCharacter* ATCharacter;
+	class AATCharacter* ATCharacter;
 
 	UPROPERTY()
 	class AATHUD* MyATHUD;

@@ -25,8 +25,8 @@ public:
 	virtual void MoveForward(float Value);
 	virtual void MoveRight(float Value);
 
-	virtual void SpecialSkill();
 	virtual void Attack(EAttackType EType, int AnimationState = 0);
+	virtual void Block();
 
 	void GetCameraLookatVector(FVector& Lookat, FRotator& CameraRotate);
 
@@ -41,16 +41,22 @@ public:
 
 	virtual void AddDefaultInventory(TArray<TSubclassOf<AATInventory>> DefaultInventoryToAdd);
 
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	FORCEINLINE UATAnimInstance* GetATAnimInstance()
+	{
+		return ATAnimInstance != nullptr ? ATAnimInstance : nullptr;
+	}
+
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	class USkeletalMeshComponent* CapeSkeletalMeshComponent;
 
 	/** Camera¸¦ µÑ·¯ ½Î´Â Component - º®¿¡ ºÎµúÈú Camera Ã³¸® */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraCapsuleComponent;
 
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Component, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* CharacterCameraComponent;
 
 	UPROPERTY()
@@ -60,13 +66,20 @@ public:
 	FRotator CameraRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
-	TArray<UAnimMontage*> AttackMontageList;
+	TArray<class UAnimMontage*> AttackMontageList;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
+	class UAnimMontage* BlockMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TArray<TSubclassOf<class AATInventory>> CharacterInventory;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	AATInventory* InventoryList;
+	class AATInventory* InventoryList;
 
 	EAttackType AttackType;
+
+private:
+	UPROPERTY()
+	class UATAnimInstance* ATAnimInstance;
 };

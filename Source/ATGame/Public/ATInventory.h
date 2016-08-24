@@ -25,6 +25,6 @@ protected:
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory")
-	AATCharacter* ATOwner;
+	class AATCharacter* ATOwner;
 
 };

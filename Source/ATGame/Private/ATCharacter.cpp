@@ -56,7 +56,7 @@ void AATCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	AATPlayerState* ATPS = Cast<AATPlayerState>(PlayerState);
-	if (ATPS)
+	if (ATPS != nullptr)
 	{
 		ATPS->ApplyItem();
 	}
@@ -67,6 +67,8 @@ void AATCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	ATAnimInstance = Cast<UATAnimInstance>(GetMesh()->GetAnimInstance());
+
 	GetCameraLookatVector(CameraLookat, CameraRotation);
 }
 
@@ -108,7 +110,6 @@ void AATCharacter::MoveRight(float Value)
 void AATCharacter::Attack(EAttackType EType, int AnimationState)
 {
 	AttackType = EType;
-
 	if (EType == EAttackType::EAttack_Attack && !IsPlayingRootMotion())
 	{
 		PlayAnimMontage(AttackMontageList[AnimationState]);
@@ -120,9 +121,12 @@ void AATCharacter::Attack(EAttackType EType, int AnimationState)
 	}
 }
 
-void AATCharacter::SpecialSkill()
+void AATCharacter::Block()
 {
-
+	/*if (!IsPlayingRootMotion())
+	{
+		PlayAnimMontage(BlockMontage);
+	}*/
 }
 
 void AATCharacter::GetCameraLookatVector(FVector& Lookat, FRotator& CameraRotate)

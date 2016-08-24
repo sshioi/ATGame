@@ -16,7 +16,7 @@ class ATGAME_API AATWeapon_Melee : public AATWeapon
 public:
 	/** particle component for muzzle flash */
 	UPROPERTY(EditAnywhere, Category = "Component")
-	UParticleSystemComponent* PSCSwing;
+	class UParticleSystemComponent* PSCSwing;
 
 	/** socket to attach weapon to hands; if None, then the hands are hidden */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")

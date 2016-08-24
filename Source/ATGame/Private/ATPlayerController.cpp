@@ -95,11 +95,13 @@ void AATPlayerController::Attack(EAttackType EType)
 	}
 }
 
-void AATPlayerController::SpecialSkill()
+void AATPlayerController::Block(bool BlockState)
 {
 	if (ATCharacter != nullptr)
 	{
-		ATCharacter->SpecialSkill();
+		SetIgnoreMoveInput(BlockState);
+		SetIgnoreLookInput(BlockState);
+		ATCharacter->GetATAnimInstance()->bBlocking = BlockState;
 	}
 }
 
