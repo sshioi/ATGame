@@ -13,6 +13,12 @@ AATPlayerController::AATPlayerController(const FObjectInitializer& ObjectInitial
 	PlayerCameraManagerClass = APlayerCameraManager::StaticClass();
 }
 
+void AATPlayerController::InitPlayerState()
+{
+	Super::InitPlayerState();
+	ATPlayerState = Cast<AATPlayerState>(PlayerState);
+}
+
 void AATPlayerController::ReceivedPlayer()
 {
 	Super::ReceivedPlayer();

@@ -22,6 +22,7 @@ class ATGAME_API AATPlayerController : public APlayerController
 	GENERATED_UCLASS_BODY()
 
 public:
+	virtual void InitPlayerState() override;
 	virtual void ReceivedPlayer() override;
 	virtual void SetPawn(APawn* InPawn) override;
 
@@ -60,6 +61,9 @@ private:
 	TSubclassOf<class AHUD> HUDClass;
 
 public:
+	UPROPERTY()
+	class AATPlayerState* ATPlayerState;
+
 	UPROPERTY()
 	FVector StickMoveDirection;
 

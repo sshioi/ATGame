@@ -8,6 +8,7 @@
 /**
  * 
  */
+
 UCLASS(Blueprintable, Abstract, NotPlaceable)
 class ATGAME_API AATWeapon : public AATInventory
 {
@@ -20,6 +21,25 @@ public:
 
 	UFUNCTION()
 	void AttachToOwner();
+
+	UFUNCTION()
+	virtual void DetachFromOwner();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	virtual void FireShot();
+
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	virtual AATProjectile* FireProjectile(const TSubclassOf<AATProjectile>& ProjectileClass);
+
+	UFUNCTION()
+	virtual void OnOverlapBegin(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<class AATProjectile> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
+	float Damage;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")

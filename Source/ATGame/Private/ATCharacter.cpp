@@ -44,6 +44,7 @@ AATCharacter::AATCharacter(const class FObjectInitializer& ObjectInitializer)
 		}
 	}
 
+	Health = 100.f;
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -58,7 +59,7 @@ void AATCharacter::PossessedBy(AController* NewController)
 	AATPlayerState* ATPS = Cast<AATPlayerState>(PlayerState);
 	if (ATPS != nullptr)
 	{
-		ATPS->ApplyItem();
+		ATPS->ApplyItem(this);
 	}
 }
 
@@ -70,19 +71,8 @@ void AATCharacter::BeginPlay()
 	ATAnimInstance = Cast<UATAnimInstance>(GetMesh()->GetAnimInstance());
 
 	GetCameraLookatVector(CameraLookat, CameraRotation);
-}
 
-// Called every frame
-void AATCharacter::Tick( float DeltaTime )
-{
-	Super::Tick(DeltaTime);
-}
-
-// Called to bind functionality to input
-void AATCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
-{
-	Super::SetupPlayerInputComponent(InputComponent);
-
+	OrgMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void AATCharacter::MoveForward(float Value)
@@ -121,12 +111,20 @@ void AATCharacter::Attack(EAttackType EType, int AnimationState)
 	}
 }
 
-void AATCharacter::Block()
+void AATCharacter::StartFire(FName Socket)
 {
-	/*if (!IsPlayingRootMotion())
+	for (int Index = 0; Index < ATWeaponList.Num(); ++Index)
 	{
-		PlayAnimMontage(BlockMontage);
-	}*/
+		if (ATWeaponList[Index].SocketName == Socket)
+		{
+			CurrentWeapon = ATWeaponList[Index].ATWeapon;
+			if (CurrentWeapon != nullptr)
+			{
+				CurrentWeapon->FireShot();
+			}
+			return;
+		}
+	}
 }
 
 void AATCharacter::GetCameraLookatVector(FVector& Lookat, FRotator& CameraRotate)
@@ -161,35 +159,6 @@ bool AATCharacter::AddInventory(AATInventory* InvToAdd, bool bAutoActivate)
 	return false;
 }
 
-void AATCharacter::RemoveInventory(AATInventory* InvToRemove)
-{
-	/*if (InvToRemove != NULL && InventoryList != NULL)
-	{
-		bool bFound = false;
-		if (InvToRemove == InventoryList)
-		{
-			bFound = true;
-			InventoryList = InventoryList->NextInventory;
-		}
-		else
-		{
-			for (AATInventory* TestInv = InventoryList; TestInv->NextInventory != NULL; TestInv = TestInv->NextInventory)
-			{
-				if (TestInv->NextInventory == InvToRemove)
-				{
-					bFound = true;
-					TestInv->NextInventory = InvToRemove->NextInventory;
-					break;
-				}
-			}
-		}
-		if (bFound)
-		{
-			InvToRemove->Removed();
-		}
-	}*/
-}
-
 void AATCharacter::AddDefaultInventory(TArray<TSubclassOf<AATInventory>> DefaultInventoryToAdd)
 {
 	// 캐릭터가 가지고 있는 인벤토리
@@ -203,4 +172,92 @@ void AATCharacter::AddDefaultInventory(TArray<TSubclassOf<AATInventory>> Default
 	{
 		AddInventory(GetWorld()->SpawnActor<AATInventory>(DefaultInventoryToAdd[i], FVector(0.0f), FRotator(0, 0, 0)), true);
 	}
+}
+
+float AATCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Health <= 0.f)
+	{
+		return 0.f;
+	}
+
+	if (GetATAnimInstance()->bBlocking)
+	{
+		PlayAnimMontage(BlockMontage);
+		return 0.f;
+	}
+
+	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	if (ActualDamage > 0.f)
+	{
+		Health -= ActualDamage;
+	}
+
+	if (Health <= 0)
+	{
+		OnDied(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	}
+	else
+	{
+		NotifyTakeHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
+	}
+
+	return ActualDamage;
+}
+
+void AATCharacter::NotifyTakeHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
+{
+	PlayAnimMontage(FlinchMontage);
+
+	if (DamageTaken > 0.f)
+	{
+		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
+	}
+}
+
+void AATCharacter::OnDied(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser)
+{
+	Health = FMath::Min(0.0f, Health);
+
+	UDamageType const* const DamageType =
+		DamageEvent.DamageTypeClass ? Cast<const UDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject()) :
+		GetDefault<UDamageType>();
+
+	Killer = GetDamageInstigator(Killer, *DamageType);
+
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->BodyInstance.SetResponseToChannel(ECC_Pawn, ECR_Ignore);
+		GetCapsuleComponent()->BodyInstance.SetResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
+	}
+
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->DisableMovement();
+	}
+
+	if (Controller != NULL)
+	{
+		Controller->UnPossess();
+	}
+
+	float DeathAnimDuration = PlayAnimMontage(DeathMontage);
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AATCharacter::OnDiedAnimationEnd, DeathAnimDuration, false);
+}
+
+void AATCharacter::OnDiedAnimationEnd()
+{
+	for (int Index = 0; Index < ATWeaponList.Num(); ++Index)
+	{
+		ATWeaponList[Index].ATWeapon->DetachFromOwner();
+	}
+	SetActorHiddenInGame(true);
+	SetLifeSpan(0.1f);
 }

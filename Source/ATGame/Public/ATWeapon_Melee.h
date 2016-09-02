@@ -14,6 +14,9 @@ class ATGAME_API AATWeapon_Melee : public AATWeapon
 	GENERATED_UCLASS_BODY()
 
 public:
+	virtual void DetachFromOwner() override;
+
+public:
 	/** particle component for muzzle flash */
 	UPROPERTY(EditAnywhere, Category = "Component")
 	class UParticleSystemComponent* PSCSwing;

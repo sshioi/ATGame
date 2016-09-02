@@ -5,6 +5,18 @@
 #include "GameFramework/Character.h"
 #include "ATCharacter.generated.h"
 
+USTRUCT()
+struct FWeaponInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	class AATWeapon* ATWeapon;
+
+	UPROPERTY()
+	FName SocketName;
+};
+
 UCLASS()
 class ATGAME_API AATCharacter : public ACharacter
 {
@@ -16,17 +28,12 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void MoveForward(float Value);
 	virtual void MoveRight(float Value);
 
 	virtual void Attack(EAttackType EType, int AnimationState = 0);
-	virtual void Block();
 
 	void GetCameraLookatVector(FVector& Lookat, FRotator& CameraRotate);
 
@@ -36,11 +43,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual bool AddInventory(AATInventory* InvToAdd, bool bAutoActivate);
 
+	//UFUNCTION(BlueprintCallable, Category = "Weapon")
+	//virtual void RemoveInventory(AATInventory* InvToRemove);
+
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void RemoveInventory(AATInventory* InvToRemove);
+	virtual void StartFire(FName Socket);
 
 	virtual void AddDefaultInventory(TArray<TSubclassOf<AATInventory>> DefaultInventoryToAdd);
 
+	virtual void NotifyTakeHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);
+
+	virtual void OnDied(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser);
+
+	void OnDiedAnimationEnd();
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	FORCEINLINE UATAnimInstance* GetATAnimInstance()
 	{
@@ -69,6 +84,12 @@ public:
 	TArray<class UAnimMontage*> AttackMontageList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
+	class UAnimMontage* FlinchMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
+	class UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Montage")
 	class UAnimMontage* BlockMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -77,9 +98,27 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	class AATInventory* InventoryList;
 
+	UPROPERTY()
+	TArray<FWeaponInfo> ATWeaponList;
+
+	// AI¸¸ Firing Delay Àû¿ë
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	float FiringDelay;
+
+	UPROPERTY()
+	bool bIsAttacking;
+
 	EAttackType AttackType;
 
-private:
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Health)
+	float Health;
+
+	UPROPERTY()
+	class AATWeapon* CurrentWeapon;
+
+protected:
 	UPROPERTY()
 	class UATAnimInstance* ATAnimInstance;
+
+	float OrgMaxWalkSpeed;
 };

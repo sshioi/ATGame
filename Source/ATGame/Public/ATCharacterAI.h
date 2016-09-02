@@ -15,20 +15,16 @@ class ATGAME_API AATCharacterAI : public AATCharacter
 
 public:
 	virtual void PossessedBy(AController* NewController) override;
-
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	//virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	virtual void FaceRotation(FRotator NewControlRotation, float DeltaTime = 0.f ) override;
 
-public:
-	UPROPERTY(VisibleAnywhere, Category = "Collision")
-	class USphereComponent* AttackCollisionSphere;
+	virtual void Attack(EAttackType EType, int AnimationState = 0) override;
+	virtual void OnAttackEnd();
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI")
 	class UBehaviorTree* BehaviorTree;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
-	int Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI")
 	float DistanceSquared;

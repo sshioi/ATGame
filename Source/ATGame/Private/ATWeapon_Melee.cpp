@@ -10,6 +10,7 @@ AATWeapon_Melee::AATWeapon_Melee(const FObjectInitializer& ObjectInitializer)
 	if (MeleeCollision != nullptr && WeaponMeshComponent != nullptr)
 	{
 		MeleeCollision->SetupAttachment(WeaponMeshComponent);
+		MeleeCollision->OnComponentBeginOverlap.AddDynamic(this, &AATWeapon::OnOverlapBegin);
 		MeleeCollision->SetCastShadow(false);
 
 		SwingSocketName = FName(TEXT("Center"));
@@ -20,6 +21,15 @@ AATWeapon_Melee::AATWeapon_Melee(const FObjectInitializer& ObjectInitializer)
 			PSCSwing->SetCastShadow(false);
 		}
 	}
+	//bIsDrawWeaponCollision = true;
+}
 
-	bIsDrawWeaponCollision = true;
+void AATWeapon_Melee::DetachFromOwner()
+{
+	if (PSCSwing != nullptr)
+	{
+		PSCSwing->DeactivateSystem();
+	}
+
+	Super::DetachFromOwner();
 }

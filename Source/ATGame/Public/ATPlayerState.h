@@ -18,5 +18,5 @@ public:
 	class AATCharacter* GetATCharacter();
 
 	// 로비 연동시 가져올 아이템 설정
-	virtual void ApplyItem();
+	virtual void ApplyItem(AATCharacter* OwnerCharacter = nullptr);
 };

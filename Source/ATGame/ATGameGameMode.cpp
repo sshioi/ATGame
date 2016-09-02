@@ -8,6 +8,18 @@ AATGameGameMode::AATGameGameMode(const class FObjectInitializer& ObjectInitializ
 {
 }
 
+// Parse options for this game...
+void AATGameGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	for (TActorIterator<AATSpawnManager> It(GetWorld()); It; ++It)
+	{
+		// 무조건 한개만 존재
+		SpawnManager = *It;
+		break;
+	}
+}
 
 void AATGameGameMode::GenericPlayerInitialization(AController* C)
 {

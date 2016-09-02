@@ -14,6 +14,20 @@ AATAIController::AATAIController(const class FObjectInitializer& ObjectInitializ
 	BlackboardComponent = ObjectInitializer.CreateDefaultSubobject<UBlackboardComponent>(this, TEXT("BlackboardComponent"));
 
 	TargetEnemyKeyName = "TargetEnemy";
+	bWantsPlayerState = true;
+}
+
+void AATAIController::InitPlayerState()
+{
+	Super::InitPlayerState();
+	ATPlayerState = Cast<AATPlayerState>(PlayerState);
+}
+
+void AATAIController::SetPawn(APawn* InPawn)
+{
+	AController::SetPawn(InPawn);
+
+	ATCharacterAI = Cast<AATCharacterAI>(InPawn);
 }
 
 void AATAIController::Possess(APawn* Pawn)
@@ -27,13 +41,12 @@ void AATAIController::Possess(APawn* Pawn)
 	{
 		BlackboardComponent->InitializeBlackboard(*ATBot->BehaviorTree->BlackboardAsset);
 	}
-
 	BehaviorComponent->StartTree(*ATBot->BehaviorTree);
 }
 
 void AATAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
 {
-	if (!GetFocalPoint().IsZero() && GetPawn())
+	if (bIsFindEnemy && !GetFocalPoint().IsZero() && GetPawn())
 	{
 		FVector Direction = GetFocalPoint() - GetPawn()->GetActorLocation();
 		FRotator NewContorolRotation = Direction.Rotation();
@@ -77,6 +90,7 @@ void AATAIController::FindClosestEnemy()
 
 		if (ClosestEnemy != nullptr)
 		{
+			bIsFindEnemy = true;
 			SetTargetEnemy(ClosestEnemy);
 		}
 	}
@@ -86,11 +100,12 @@ void AATAIController::Attack()
 {
 	AATCharacter* Enemy = GetEnemy();
 	AATCharacterAI* MyBot = Cast<AATCharacterAI>(GetPawn());
-	if (Enemy != nullptr && MyBot != nullptr)
+	if (Enemy != nullptr && MyBot != nullptr && !MyBot->bIsAttacking)
 	{
 		const float Dist = (Enemy->GetActorLocation() - MyBot->GetActorLocation()).Size2D();
 		if (Dist < MyBot->AttackDistance)
 		{
+			MyBot->bIsAttacking = true;
 			MyBot->Attack(EAttackType::EAttack_Attack);
 		}
 		else
@@ -116,4 +131,9 @@ AATCharacter* AATAIController::GetEnemy()
 		return Cast<AATCharacter>(BlackboardComponent->GetValueAsObject(TargetEnemyKeyName));
 	}
 	return NULL;
+}
+
+AATCharacterAI* AATAIController::GetATCharacterAI()
+{
+	return ATCharacterAI;
 }

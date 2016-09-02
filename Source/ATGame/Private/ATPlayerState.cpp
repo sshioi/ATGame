@@ -24,15 +24,18 @@ AATCharacter* AATPlayerState::GetATCharacter()
 	return nullptr;
 }
 
-void AATPlayerState::ApplyItem()
+void AATPlayerState::ApplyItem(AATCharacter* OwnerCharacter)
 {
 	// 로비에서 InGame 아이템이 추가시 ItemBase 생성
 	// ItemBase를 따라서 Item 적용 [ Weapon / Equipment / Accessory 등등 ]
 	// 일단 강제로 DefaultInventory Item 적용
 
-	AATCharacter* OwnerCharacter = GetATCharacter();
-	AATGameGameMode* ATGameMode = GetWorld()->GetAuthGameMode<AATGameGameMode>();
+	if (OwnerCharacter == nullptr)
+	{
+		OwnerCharacter = GetATCharacter();
+	}
 
+	AATGameGameMode* ATGameMode = GetWorld()->GetAuthGameMode<AATGameGameMode>();
 	if (OwnerCharacter && OwnerCharacter->CharacterInventory.Num() != 0 && ATGameMode)
 	{
 		OwnerCharacter->AddDefaultInventory(ATGameMode->GameModeInventory);

@@ -14,6 +14,8 @@ class ATGAME_API AATAIController : public AAIController
 	GENERATED_UCLASS_BODY()
 
 public:
+	virtual void InitPlayerState() override;
+	virtual void SetPawn(APawn* InPawn) override;
 	virtual void Possess(APawn* Pawn) override;
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 
@@ -24,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void FindClosestEnemy();
 	
+	UFUNCTION(BlueprintCallable, Category = "PlayerController")
+	virtual AATCharacterAI* GetATCharacterAI();
+
 public:
 	UPROPERTY()
 	class AATPlayerState* ATPlayerState;
@@ -43,4 +48,9 @@ private:
 	//Blackboard comp ref
 	UPROPERTY(Transient)
 	class UBlackboardComponent* BlackboardComponent;
+
+	UPROPERTY()
+	class AATCharacterAI* ATCharacterAI;
+
+	bool bIsFindEnemy;
 };
