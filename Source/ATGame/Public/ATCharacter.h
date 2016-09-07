@@ -110,8 +110,17 @@ public:
 
 	EAttackType AttackType;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Health)
-	float Health;
+	UPROPERTY(BlueprintReadWrite, Category = "Pawn")
+	int32 Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pawn")
+	int32 HealthMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float HealthActorExtent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	float HealthOffsetY;
 
 	UPROPERTY()
 	class AATWeapon* CurrentWeapon;

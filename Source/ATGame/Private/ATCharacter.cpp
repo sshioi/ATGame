@@ -44,7 +44,10 @@ AATCharacter::AATCharacter(const class FObjectInitializer& ObjectInitializer)
 		}
 	}
 
-	Health = 100.f;
+	HealthActorExtent = 45.f;
+	HealthOffsetY = 100.f;
+	Health = HealthMax;
+
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -218,7 +221,7 @@ void AATCharacter::NotifyTakeHit(float DamageTaken, struct FDamageEvent const& D
 
 void AATCharacter::OnDied(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser)
 {
-	Health = FMath::Min(0.0f, Health);
+	Health = FMath::Min(0, Health);
 
 	UDamageType const* const DamageType =
 		DamageEvent.DamageTypeClass ? Cast<const UDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject()) :
