@@ -95,11 +95,11 @@ void AATWeapon::OnOverlapBegin(class UPrimitiveComponent* HitComp, class AActor*
 	if (OtherActor && (OtherActor != this) && OtherComp)
 	{
 		AATCharacter* Charater = Cast<AATCharacter>(OtherActor);
-		if (Charater != nullptr && Charater->CurrentWeapon != this && Charater->bIsAttacking)
+		if (Charater != nullptr && Charater->CurrentWeapon != this && this->ATOwner->bIsAttacking && this->ATOwner->bIsBot() != Charater->bIsBot())
 		{
 			UGameplayStatics::ApplyPointDamage(SweepResult.Actor.Get(), Damage, -SweepResult.ImpactNormal, SweepResult, NULL, this, UDamageType::StaticClass());
+			this->ATOwner->bIsAttacking = false;
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, TEXT("Projectile Collision"));
-			Charater->bIsAttacking = false;
 		}
 	}
 }

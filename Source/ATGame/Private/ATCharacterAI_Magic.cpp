@@ -11,7 +11,7 @@ AATCharacterAI_Magic::AATCharacterAI_Magic(const class FObjectInitializer& Objec
 
 void AATCharacterAI_Magic::Attack(EAttackType EType, int AnimationState)
 {
-	if (EType == EAttackType::EAttack_Attack && !ATAnimInstance->Montage_IsPlaying(AttackMontageList[AnimationState]))
+	if (AttackMontageList[AnimationState] != nullptr && EType == EAttackType::EAttack_Attack && !ATAnimInstance->Montage_IsPlaying(AttackMontageList[AnimationState]))
 	{
 		PlayAnimMontage(AttackMontageList[AnimationState]);
 

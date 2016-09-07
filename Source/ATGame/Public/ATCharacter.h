@@ -62,6 +62,11 @@ public:
 		return ATAnimInstance != nullptr ? ATAnimInstance : nullptr;
 	}
 
+	UFUNCTION()
+	FORCEINLINE bool bIsBot() const
+	{
+		return (PlayerState != nullptr) ? PlayerState->bIsABot : false;
+	}
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	class USkeletalMeshComponent* CapeSkeletalMeshComponent;
